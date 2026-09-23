@@ -2,49 +2,67 @@
 <html>
     <head>
         <title>Custom Integration Example</title>
-        <link rel="stylesheet" href="integrationExample.css" />
+        <link rel="stylesheet" href="IntegrationExample.css" />
         <script>
             geotab.addin.integrationExample = function(api, state) {
-                var center = document.getElementById("center"),
-                listCreator = function(entities) {
-                    var listElement = document.createElement("ul");
-                    listElement.appendChild(entities.reduce(function(frag, entity) {
-                        var element = document.createElement("li");
-                        element.textContent = entity.name;
-                        element.setAttribute("data-id", entity.id);
-                        frag.appendChild(element);
-                        return frag;
-                    }, document.createDocumentFragment()));
-                    return listElement;
-                },
-                goToVehicles = function(event) {
-                    var id = event.target.getAttribute("data-id");
-                    if (id) {
-                        state.gotoPage("device", {
-                            id: id
+                var getCenter = function() {
+                        return document.getElementById("center");
+                    },
+                    listCreator = function(entities) {
+                        var listElement = document.createElement("ul");
+                        entities.forEach(function(entity) {
+                            var element = document.createElement("li");
+                            element.textContent = entity.name;
+                            element.setAttribute("data-id", entity.id);
+                            listElement.appendChild(element);
                         });
-                    }
-                },
-                refreshPage = function() {
-                    api.call("Get", {
-                        typeName: "Device"
-                    }, function (result) {
-                        center.addEventListener("click", goToVehicles, false);
-                        center.appendChild(listCreator(result));
-                    }, function (error) {
-                        console.log(error.message);
-                    });
-                },
-                clearOnLeaving = function() {
-                    center.removeEventListener("click", goToVehicles, false);
-                    center.innerHTML = "";
-                };
+                        return listElement;
+                    },
+                    goToVehicles = function(event) {
+                        var target = event.target || event.srcElement,
+                            id = target && target.getAttribute("data-id");
+                        if (id) {
+                            state.gotoPage("device", {
+                                id: id
+                            });
+                        }
+                    },
+                    refreshPage = function() {
+                        var center = getCenter();
+                        if (!center) {
+                            return;
+                        }
+
+                        api.call("Get", {
+                            typeName: "Device"
+                        }, function(result) {
+                            center.innerHTML = "";
+                            center.addEventListener("click", goToVehicles, false);
+                            center.appendChild(listCreator(result));
+                        }, function(error) {
+                            console.log(error.message);
+                        });
+                    },
+                    clearOnLeaving = function() {
+                        var center = getCenter();
+                        if (!center) {
+                            return;
+                        }
+                        center.removeEventListener("click", goToVehicles, false);
+                        center.innerHTML = "";
+                    };
+
                 return {
                     initialize: function(api, state, callback) {
-                        document.getElementById("vehiclesButton").addEventListener("click", function () {
-                            state.gotoPage("devices");
-                        }, false);
-                        callback();
+                        var button = document.getElementById("vehiclesButton");
+                        if (button) {
+                            button.addEventListener("click", function() {
+                                state.gotoPage("devices");
+                            }, false);
+                        }
+                        if (callback) {
+                            callback();
+                        }
                     },
                     focus: function(api, state) {
                         refreshPage();
@@ -52,7 +70,7 @@
                     blur: function(api, state) {
                         clearOnLeaving();
                     }
-                }
+                };
             };
         </script>
     </head>
