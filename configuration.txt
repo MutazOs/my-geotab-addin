@@ -1,0 +1,16 @@
+{
+    "name": "Integration Example",
+    "supportEmail": "mutazosman@geotab.com",
+    "items": [{
+        "version": "1.0",
+        "url": "https://app.geotab.com/GeotabApps/SDKIntegrationExample/IntegrationExample.html",
+        "path": "ActivityLink",
+        "menuName": {
+            "en": "English Label",
+            "fr": "French Label"
+        }
+    }],
+    "key": "123456-MYKEY",
+    "signature": "12345-MYSIGNATURE",
+    "isSigned": false
+}
